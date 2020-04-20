@@ -7,7 +7,8 @@ services:
       BETA_NAME: headless-client
       BETA_KEY: ****
     configs:
-      - neosvr:/steam/740250/DefaultConfig.json
+      - source: neosvr
+        target: /steam/740250/DefaultConfig.json
     volumes:
       - neosvr:/steam
     command: /steam/740250/RunHeadlessMono.sh
