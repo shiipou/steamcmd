@@ -5,9 +5,11 @@ services:
     environment: 
       INSTALL_APPS: 4020,232330,220
     ports:
-      - 27015:27015
+      - 27015:27015/udp
     configs:
       - server_conf:/steam/4020/cfg/server.cfg
+      - mount_conf:/steam/4020/cfg/mount.cfg
+      - mountdepots_conf:/steam/4020/cfg/mountdepots.txt
     volumes:
       - gmod:/steam
     command: /steam/4020/srcds_run -game garrysmod -norestart -port 27015 -console -secure +maxplayers 16 +hostname "My Sandbox Server" +gamemode sandbox +map gm_construct +host_workshop_collection **** +authkey **** +sv_setsteamaccount **** +exec server.cfg
@@ -19,6 +21,10 @@ services:
 configs:
   server_conf:
     file: ./gmod.conf
+  mount_conf:
+    file: ./mount.conf
+  mountdepots_conf:
+    file: ./mountdepots.conf
 
 volumes:
   gmod:
