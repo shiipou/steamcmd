@@ -1,0 +1,19 @@
+{
+ "tickRate": 60.0,
+ "usernameOverride": "Docker headless server",
+ "loginCredential": null,
+ "loginPassword": null,
+ "startWorld": {
+   "sessionName": "Headless Lounge",
+   "description": "This is running on my server",
+   "maxUsers": 16,
+   "accessLevel": "Anyone",
+   "tags": "hosted",
+   "mobileFriendly": false,
+   "loadWorldURL": null,
+   "loadWorldPresetName": "SpaceWorld",
+   "adminUsernames": [
+     "MyNeosVRUsername"
+    ]
+  }
+}
