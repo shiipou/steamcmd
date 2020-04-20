@@ -69,4 +69,56 @@ To explain what it does, it's pretty simple.
 
 ### Docker-Swarm
 
-TODO: Write the model stack file
+The docker swarm work in the same way. But you need to create a `stackfile`.
+
+To start, you first need to have a swarm cluster running, if not, you can just initialisate one using this command : 
+```sh
+docker swarm init
+```
+
+Now, you can create the `stackfile`, I'll name it `steam.yml`. It will contain the deployment definition of our containers in the `YAML` format.
+
+Here the template file you can use :
+
+```yaml
+# file: steam.yml
+
+version: "3.7"
+services:
+  gmod:
+    image: nocturlab/steamcmd
+    environment: 
+      INSTALL_APPS: 4020,232330,220
+    ports:
+      - 27015:27015
+    networks:
+      - ingress_net
+      - db
+    volumes:
+      - gmod:/steam
+    command: /steam/4020/srcds_run -game garrysmod -norestart -port 27015 -console -secure +maxplayers 16 +hostname "My Sandbox Server" +gamemode sandbox +map gm_construct +host_workshop_collection **** +authkey **** +sv_setsteamaccount ****
+    stdin_open: true
+    tty: true
+    deploy:
+      replicas: 1
+
+volumes:
+  gmod:
+```
+
+You can see the same options as the docker solution.
+
+So refer to that section if you want to know how to configure it.
+
+- `stdin_open: true` and `tty: true` allow you to access to the console.
+- The `volumes:` map at the buttom of the file allow you create new storages. Storage as used in services `volumes:` array.
+
+To run your server, you just have to run this command :
+```sh
+docker stack deploy -c steam.yml steam
+```
+The last `steam` of this command is your stack name. You can customise it but it need to be unique on your cluster.
+
+All ressources created in your stack will be prefix by the stack name, here `steam`. for example for the volume `gmod` : `steam_gmod`
+
+To access and edit your server files, you will find it only in root user (so use `sudo -s`) and in the directory `/var/lib/docker/volumes/steam_gmod/4020/`
