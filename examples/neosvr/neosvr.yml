@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  neosvr:
+    image: nocturlab/steamcmd
+    environment: 
+      INSTALL_APPS: 740250
+      BETA_NAME: headless-client
+      BETA_PASSWORD: ****
+    configs:
+      - neosvr:/steam/740250/DefaultConfig.json
+    volumes:
+      - neosvr:/steam
+    command: /steam/740250/run_linux.sh
+    stdin_open: true
+    tty: true
+    deploy:
+      replicas: 1
+
+configs:
+  neosvr:
+    file: ./neosvr.conf.json
+
+volumes:
+  neosvr:
