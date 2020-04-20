@@ -22,6 +22,7 @@ docker run -it --rm -v steam_gmod:/steam \
                     --restart always \
                     --name gmod-server
                     --entrypoint /entrypoint.sh \
+                    -p 27015:27015 \
            nocturlab/steamcmd \
            /steam/4020/srcds_run -game garrysmod \
                                  -norestart \
