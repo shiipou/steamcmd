@@ -5,7 +5,7 @@ services:
     environment: 
       INSTALL_APPS: 740250
       BETA_NAME: headless-client
-      BETA_PASSWORD: ****
+      BETA_KEY: ****
     configs:
       - neosvr:/steam/740250/DefaultConfig.json
     volumes:
