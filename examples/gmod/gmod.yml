@@ -6,9 +6,6 @@ services:
       INSTALL_APPS: 4020,232330,220
     ports:
       - 27015:27015
-    networks:
-      - ingress_net
-      - db
     volumes:
       - gmod:/steam
     command: /steam/4020/srcds_run -game garrysmod -norestart -port 27015 -console -secure +maxplayers 16 +hostname "My Sandbox Server" +gamemode sandbox +map gm_construct +host_workshop_collection **** +authkey **** +sv_setsteamaccount ****
