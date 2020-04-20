@@ -10,6 +10,7 @@ services:
       - server_conf:/steam/4020/cfg/server.cfg
       - mount_conf:/steam/4020/cfg/mount.cfg
       - mountdepots_conf:/steam/4020/cfg/mountdepots.txt
+      - addons_loader:/steam/4020/garrysmod/lua/autorun/server/addons_load.lua
     volumes:
       - gmod:/steam
     command: /steam/4020/srcds_run -game garrysmod -norestart -port 27015 -console -secure +maxplayers 16 +hostname "My Sandbox Server" +gamemode sandbox +map gm_construct +host_workshop_collection **** +authkey **** +sv_setsteamaccount **** +exec server.cfg
@@ -25,6 +26,8 @@ configs:
     file: ./mount.conf
   mountdepots_conf:
     file: ./mountdepots.conf
+  addons_loader:
+    file: ./addons_loader.lua
 
 volumes:
   gmod:
