@@ -13,6 +13,9 @@ ENV INSTALL_APPS ${INSTALL_APPS:-""}
 # Steam credentials
 ENV LOGIN ${LOGIN:-"anonymous"}
 ENV PASSWORD ${PASSWORD:-""}
+# Beta keys
+ENV BETA_NAME ${BETA_NAME:-""}
+ENV BETA_KEY ${BETA_KEY:-""}
 
 
 WORKDIR /steam
