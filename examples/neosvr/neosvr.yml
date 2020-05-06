@@ -11,7 +11,7 @@ services:
         target: /steam/740250/DefaultConfig.json
     volumes:
       - neosvr:/steam
-    command: /steam/740250/RunHeadlessMono.sh
+    command: /steam/740250/Neos.x86_64
     stdin_open: true
     tty: true
     deploy:
