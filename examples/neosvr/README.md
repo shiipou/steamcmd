@@ -1,5 +1,5 @@
 # NeosVR Example
-To launch NeosVR Headless-Server with shiipou/Steamcmd I'll use the docker swarm version because it better for high availability, but bassicaly you can use the docker usage of steamcmd documented in the [home page](https://github.com/shiipou/steamcmd)
+To launch NeosVR Headless-Server with shiipou/Steamcmd I'll use the docker swarm version because it better for high availability, but basically you can use the docker usage of steamcmd documented in the [home page](https://github.com/shiipou/steamcmd)
 
 ## Usage
 
