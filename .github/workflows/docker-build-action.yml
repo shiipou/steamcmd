@@ -1,12 +1,20 @@
 name: Build Docker Image
-on: [push]
+on: 
+  push:
+  schedule:
+#             ┌───────────── minute (0 - 59)
+#             │ ┌───────────── hour (0 - 23)
+#             │ │ ┌───────────── day of the month (1 - 31)
+#             │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
+#             │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
+    - cron:  '* * * * 0'
 
 jobs:
 
   build:
     name: Build ${{ matrix.os }}
-    runs-on: 
-      - self-hosted 
+    runs-on:
+      - self-hosted
       - ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -17,11 +25,11 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Log into registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
     - name: Build image
       run: |
-        IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/steamcmd
+        IMAGE_ID=nocturlab/steamcmd
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo ${IMAGE_ID} | tr '[A-Z]' '[a-z]')
         # Strip git ref prefix from version
@@ -45,6 +53,8 @@ jobs:
       - self-hosted
       - X64
     needs: build
+    env:
+      DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
     - name: Get current branch
       run: |
@@ -54,32 +64,11 @@ jobs:
         fi
         echo "::set-env name=BRANCH_NAME::${BRANCH_NAME}"
     - run: |
-        # enable experimental features
-        mkdir ~/.docker
-        echo '{
-          "experimental": "enabled"
-        }
-        ' > ~/.docker/config.json
-        docker manifest create docker.pkg.github.com/${{ github.repository }}/steamcmd:${{ env.BRANCH_NAME }} \
-          docker.pkg.github.com/${{ github.repository }}/steamcmd:${{ env.BRANCH_NAME }}-x64 \
-          docker.pkg.github.com/${{ github.repository }}/steamcmd:${{ env.BRANCH_NAME }}-arm \
-          docker.pkg.github.com/${{ github.repository }}/steamcmd:${{ env.BRANCH_NAME }}-arm64
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-        docker push docker.pkg.github.com/${{ github.repository }}/steamcmd:${{ env.BRANCH_NAME }}
-
-  update:
-    name: Update ${{ matrix.version }}
-    runs-on: ubuntu-latest
-    needs: publish
-    strategy:
-      fail-fast: false
-      matrix:
-        version: [steam_gmod]
-    steps:
-    - name: Update ${{ matrix.version }} on server
-      uses: Nocturlab/ssh-action@master
-      env:
-        HOST: ${{ secrets.SSH_HOST }}
-        KEY: ${{ secrets.SSH_KEY }}
-      with:
-        args: --user ${{ secrets.SSH_USER }} --script "'docker service update ${{ matrix.version }}'"
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
+        
+        docker manifest create nocturlab/steamcmd:${{ env.BRANCH_NAME }} \
+                               nocturlab/steamcmd:${{ env.BRANCH_NAME }}-x64 \
+                               nocturlab/steamcmd:${{ env.BRANCH_NAME }}-arm64 \
+                               nocturlab/steamcmd:${{ env.BRANCH_NAME }}-arm
+        
+        docker manifest push nocturlab/steamcmd:${{ env.BRANCH_NAME }}
