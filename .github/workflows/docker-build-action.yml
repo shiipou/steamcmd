@@ -7,27 +7,26 @@ on:
 #             │ │ ┌───────────── day of the month (1 - 31)
 #             │ │ │ ┌───────────── month (1 - 12 or JAN-DEC)
 #             │ │ │ │ ┌───────────── day of the week (0 - 6 or SUN-SAT)
-    - cron:  '* * * * 0'
+    - cron:  '0 0 * * 0'
 
 jobs:
 
   build:
-    name: Build ${{ matrix.os }}
-    runs-on:
-      - self-hosted
-      - ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ARM, ARM64, X64]
+    name: Build
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code from Git repository
       uses: actions/checkout@v2
 
+    - name: Set up Docker Buildx
+      uses: crazy-max/ghaction-docker-buildx@v1
+      with:
+        version: latest
+    
     - name: Log into registry
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
-
-    - name: Build image
+    
+    - name: Build & Push
       run: |
         IMAGE_ID=nocturlab/steamcmd
         # Change all uppercase to lowercase
@@ -38,37 +37,13 @@ jobs:
         [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo ${VERSION} | sed -e 's/^v//')
         # Use Docker `latest` tag convention
         [ "$VERSION" == "master" ] && VERSION=latest
-        # If it was Matrix os, so tag it with.
-        if [ -n "${{ matrix.os }}" ]; then
-          VERSION="${VERSION}-$(echo ${{ matrix.os }} | tr '[A-Z]' '[a-z]')"
-        fi
+
         echo "IMAGE_ID=${IMAGE_ID}"
         echo "VERSION=${VERSION}"
-        docker build -f Dockerfile -t "${IMAGE_ID}:${VERSION}" .
-        docker push ${IMAGE_ID}:${VERSION}
-
-  publish:
-    name: Publish
-    runs-on: 
-      - self-hosted
-      - X64
-    needs: build
-    env:
-      DOCKER_CLI_EXPERIMENTAL: enabled
-    steps:
-    - name: Get current branch
-      run: |
-        BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
-        if [ "${BRANCH_NAME}" = "master" ]; then
-          BRANCH_NAME="latest"
-        fi
-        echo "::set-env name=BRANCH_NAME::${BRANCH_NAME}"
-    - run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
         
-        docker manifest create nocturlab/steamcmd:${{ env.BRANCH_NAME }} \
-                               nocturlab/steamcmd:${{ env.BRANCH_NAME }}-x64 \
-                               nocturlab/steamcmd:${{ env.BRANCH_NAME }}-arm64 \
-                               nocturlab/steamcmd:${{ env.BRANCH_NAME }}-arm
-        
-        docker manifest push nocturlab/steamcmd:${{ env.BRANCH_NAME }}
+        docker buildx build \
+          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --tag nocturlab/steamcmd:${VERSION} \
+          --file ./Dockerfile \
+          --output type=image,push=true .
+    
