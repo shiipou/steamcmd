@@ -17,13 +17,14 @@ jobs:
     steps:
     - name: Checkout code from Git repository
       uses: actions/checkout@v2
-
+    
     - id: buildx
       name: Set up Docker Buildx
       uses: crazy-max/ghaction-docker-buildx@v1
       with:
         buildx-version: latest
         qemu-version: latest
+    
     - name: Available platforms
       run: echo ${{ steps.buildx.outputs.platforms }}
     
@@ -41,12 +42,12 @@ jobs:
         [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo ${VERSION} | sed -e 's/^v//')
         # Use Docker `latest` tag convention
         [ "$VERSION" == "master" ] && VERSION=latest
-
+    
         echo "IMAGE_ID=${IMAGE_ID}"
         echo "VERSION=${VERSION}"
-        
+    
         docker buildx build \
-          --platform linux/386,linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x \
+          --platform linux/amd64,linux/arm64,linux/riscv64,linux/ppc64le,linux/s390x,linux/386,linux/arm/v7,linux/arm/v6 \
           --tag nocturlab/steamcmd:${VERSION} \
           --file ./Dockerfile \
           --output type=image,push=true .
