@@ -49,6 +49,8 @@ USER ${UID}:${GID}
 
 RUN steamcmd +quit
 
+RUN ln -s /home/steam/.steam/steamcmd/linux64/ /home/steam/.steam/sdk64
+
 ARG DEBIAN_FRONTEND=
 
 ENTRYPOINT ["/entrypoint.sh"]
